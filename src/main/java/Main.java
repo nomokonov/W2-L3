@@ -9,8 +9,8 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Iterator;
-import java.util.Set;
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main {
 
@@ -19,10 +19,15 @@ public class Main {
     public static SocketChannel socket = null;
     public static int port = 5050;
     public static String  result = null;
-    int count_connections = 0;
+    public static int  count_mess = 0;
 
     public static void main(String args[]) throws IOException {
-
+//        TimerTask timerTask = new MyTimerTask();
+//        // стартуем TimerTask в виде демона
+//
+//        Timer timer = new Timer(true);
+//        // будем запускать каждых 10 секунд (10 * 1000 миллисекунд)
+//        timer.scheduleAtFixedRate(timerTask, 0, 1000);
 
         sel = Selector.open();
         server = ServerSocketChannel.open();
@@ -34,8 +39,7 @@ public class Main {
 
         while (acceptKey.selector().select() > 0) {
 
-            Set readyKeys = sel.selectedKeys();
-            Iterator it = readyKeys.iterator();
+            Iterator it = sel.selectedKeys().iterator();
 
             while (it.hasNext()) {
                 SelectionKey key = (SelectionKey) it.next();
@@ -61,6 +65,7 @@ public class Main {
                 if (key.isWritable()) {
 //					System.out.println("THe key is writable");
                     String ret = readMessage(key);
+
                     socket = (SocketChannel) key.channel();
                     if (ret.toLowerCase().equals("bye.")) {
                         socket.close();
@@ -93,7 +98,7 @@ public class Main {
     public static String readMessage(SelectionKey key) {
         int nBytes = 0;
         socket = (SocketChannel) key.channel();
-        ByteBuffer buf = ByteBuffer.allocate(1024);
+        ByteBuffer buf = ByteBuffer.allocate(24);
         try {
             nBytes = socket.read(buf);
 //            System.out.println("nBytes = " + nBytes);
@@ -102,6 +107,8 @@ public class Main {
             CharsetDecoder decoder = charset.newDecoder();
             CharBuffer charBuffer = decoder.decode(buf);
             result = charBuffer.toString();
+            count_mess++;
+
 
         } catch (IOException e) {
             e.printStackTrace();
