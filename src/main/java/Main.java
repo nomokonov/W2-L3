@@ -77,7 +77,7 @@ public class Main {
 
 
     private static void writeMessage(SocketChannel socket, String ret) {
-        System.out.println("Inside the loop");
+//        System.out.println("Inside the loop");
         try {
             ByteBuffer buffer = ByteBuffer.allocate(24);
             buffer = ByteBuffer.wrap(ret.getBytes());
