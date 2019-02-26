@@ -9,34 +9,29 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Main {
+//    static final Logger logger = LogManager.getLogger(Main.class.getName());
 
     public static Selector sel = null;
     public static ServerSocketChannel server = null;
     public static SocketChannel socket = null;
     public static int port = 5050;
-    public static String  result = null;
-    public static int  count_mess = 0;
+    public static String result = null;
+    public static int count_mess = 0;
 
     public static void main(String args[]) throws IOException {
-//        TimerTask timerTask = new MyTimerTask();
-//        // стартуем TimerTask в виде демона
-//
-//        Timer timer = new Timer(true);
-//        // будем запускать каждых 10 секунд (10 * 1000 миллисекунд)
-//        timer.scheduleAtFixedRate(timerTask, 0, 1000);
+
 
         sel = Selector.open();
         server = ServerSocketChannel.open();
         server.configureBlocking(false);
         InetSocketAddress isa = new InetSocketAddress(port);
         server.socket().bind(isa);
-        System.out.println("Server started");
-        SelectionKey acceptKey = server.register(sel, SelectionKey.OP_ACCEPT);
+//        logger.info("Server started");
 
+        SelectionKey acceptKey = server.register(sel, SelectionKey.OP_ACCEPT);
+        System.out.println("Server started");
         while (acceptKey.selector().select() > 0) {
 
             Iterator it = sel.selectedKeys().iterator();
@@ -45,14 +40,14 @@ public class Main {
                 SelectionKey key = (SelectionKey) it.next();
                 it.remove();
 
-                if (key.isAcceptable()) {
-//                    System.out.println("Key is Acceptable");
+                if (key.isValid() && key.isAcceptable()) {
+//                    System.out.println("Key is Acceptable");ass
                     ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
                     socket = (SocketChannel) ssc.accept();
                     socket.configureBlocking(false);
                     SelectionKey another = socket.register(sel, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                 }
-                if (key.isReadable()) {
+                if (key.isValid() && key.isReadable()) {
 //					System.out.println("Key is readable");
                     String ret = readMessage(key);
                     if (ret.toLowerCase().equals("bye.")) {
@@ -62,7 +57,7 @@ public class Main {
                     }
 
                 }
-                if (key.isWritable()) {
+                if (key.isValid() && key.isWritable()) {
 //					System.out.println("THe key is writable");
                     String ret = readMessage(key);
 
@@ -72,14 +67,10 @@ public class Main {
                     } else if (result.length() > 0) {
                         writeMessage(socket, ret);
                     }
-
                 }
             }
         }
-
-
     }
-
 
     private static void writeMessage(SocketChannel socket, String ret) {
 //        System.out.println("Inside the loop");
@@ -102,14 +93,12 @@ public class Main {
         try {
             nBytes = socket.read(buf);
 //            System.out.println("nBytes = " + nBytes);
+//            logger.info("READ socket ");
             buf.flip();
             Charset charset = Charset.forName("utf-8");
             CharsetDecoder decoder = charset.newDecoder();
             CharBuffer charBuffer = decoder.decode(buf);
             result = charBuffer.toString();
-            count_mess++;
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }

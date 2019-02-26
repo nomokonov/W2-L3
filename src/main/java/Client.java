@@ -15,7 +15,7 @@ public class Client
     public RecvThread rt = null;
     public int count =0;
     public int recv_count =0;
-    public static  final  String HELLO =  "Hello!";
+    public static  final  String HELLO =  "Hello!\n";
 
     public Client()
     {
