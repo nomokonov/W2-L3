@@ -58,9 +58,7 @@ public class Main {
 
                 }
                 if (key.isValid() && key.isWritable()) {
-//					System.out.println("THe key is writable");
                     String ret = readMessage(key);
-
                     socket = (SocketChannel) key.channel();
                     if (ret.toLowerCase().equals("bye.")) {
                         socket.close();
@@ -73,12 +71,10 @@ public class Main {
     }
 
     private static void writeMessage(SocketChannel socket, String ret) {
-//        System.out.println("Inside the loop");
         try {
             ByteBuffer buffer = ByteBuffer.allocate(24);
             buffer = ByteBuffer.wrap(ret.getBytes());
-            int nBytes = socket.write(buffer);
-//            System.out.println("nBytes = " + nBytes);
+            socket.write(buffer);
             result = null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,7 +88,6 @@ public class Main {
         ByteBuffer buf = ByteBuffer.allocate(24);
         try {
             nBytes = socket.read(buf);
-//            System.out.println("nBytes = " + nBytes);
 //            logger.info("READ socket ");
             buf.flip();
             Charset charset = Charset.forName("utf-8");
@@ -104,8 +99,6 @@ public class Main {
         }
         return result;
     }
-
-
 }
 
 
